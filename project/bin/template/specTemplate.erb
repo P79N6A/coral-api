@@ -1,0 +1,18 @@
+#encoding: utf-8
+$LOAD_PATH << File.join(File.dirname(__FILE__), '../validate')
+require '<%= classname%>_validate'
+
+RSpec.shared_examples "<%= classname%> Example" do |key,requestData,expData|
+
+    it 'CaseNo'+ key.to_s + ': '+expData['memo'] do
+
+      response = <%= classname%>Test.response_of(key)
+      expect(response).to eval("#{expData['matcher']} '#{expData['expection']}'")
+
+    end
+end
+
+RSpec.describe "<%= classname%>接口测试",:project=>'',:author=>'' do
+  <%= classname%>Test.request.each{|key,parameter|include_examples "<%= classname%> Example",key,<%= classname%>Test.request[key],<%= classname%>Test.expect[key]}
+end
+

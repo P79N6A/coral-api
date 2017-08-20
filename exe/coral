@@ -1,0 +1,160 @@
+#!/usr/bin/env
+require 'coral-api/tool'
+require 'coral-api/colorize'
+
+cmd = `gem env`
+rootdir = "#{cmd}"
+
+cmd = `gem list coral-api`
+gemdir = "#{cmd}"
+gemdir = "coral-api-" + (/\d.\d.\d/.match(gemdir)).to_s
+
+$sourcedir = /INSTALLATION.*\n/.match(rootdir).to_s.split(':')[1].strip + "/gems/"+ gemdir
+
+cmd = `pwd`
+$prodir = "#{cmd}".chomp
+
+case ARGV[0].downcase
+  when 'new'
+    if ARGV[1].eql?nil
+      puts "please input project name，default will be NewProject."
+      name = STDIN.gets
+      if name.size==1
+        name = "NewProject"
+      else
+        name = name.chomp
+      end
+      `mkdir "#{name}"`
+      $desdir = $prodir.chomp+"/#{name.chomp}"
+    else
+      `mkdir "#{ARGV[1]}"`
+      $desdir = $prodir.chomp+"/#{ARGV[1]}"
+    end
+
+      #`cp -R "#{$sourcedir}"/project/* "#{$desdir}"/.`
+
+      #创建Rakefile
+      `cp -R "#{$sourcedir}"/project/Rakefile "#{$desdir}"/.`
+      puts 'create'.green+'  Rakefile'
+
+      #创建bin目录
+      `cp -R "#{$sourcedir}"/project/bin "#{$desdir}"/.`
+
+      puts 'create'.green+'  bin'
+      puts 'create'.green+'  bin/cleandb.rb'
+      puts 'create'.green+'  bin/codegen.rb'
+      puts 'create'.green+'  bin/serialdata.rb'
+      puts 'create'.green+'  bin/template/Demo.xls'
+      puts 'create'.green+'  bin/template/extTemplate.erb'
+      puts 'create'.green+'  bin/template/specTemplate.erb'
+      puts 'create'.green+'  bin/template/validateTemplate.erb'
+
+      #创建config
+      `cp -R "#{$sourcedir}"/project/config "#{$desdir}"/.`
+      puts 'create'.green+'  config/config.yml'
+      puts 'create'.green+'  config/database.yml'
+
+      #创建data
+      `mkdir "#{$desdir}"/data`
+      `mkdir "#{$desdir}"/data/test`
+      `cp -R "#{$sourcedir}"/project/sample/Sample.xls "#{$desdir}"/data/test/.`
+      `mkdir "#{$desdir}"/data/uat`
+      `cp -R "#{$sourcedir}"/project/sample/keep "#{$desdir}"/data/uat/.`
+      puts 'create'.green+'  data'
+      puts 'create'.green+'  data/test'
+      puts 'create'.green+'  data/test/Sample.xls'
+      puts 'create'.green+'  data/uat'
+
+      #创建ext
+      `mkdir "#{$desdir}"/ext`
+      `cp -R "#{$sourcedir}"/project/sample/Sample.rb "#{$desdir}"/ext/Sample.rb`
+      puts 'create'.green+'  ext'
+      puts 'create'.green+'  ext/Sample.rb'
+
+      #创建jar
+      `cp -R "#{$sourcedir}"/project/jar "#{$desdir}"/.`
+      puts 'create'.green+'  jar/fastjson.jar'
+      puts 'create'.green+'  jar/jxl.jar'
+      puts 'create'.green+'  jar/ojdbc6.jar'
+
+      #创建lib
+      `cp -R "#{$sourcedir}"/project/lib "#{$desdir}"/.`
+      puts 'create'.green+'  lib/assets'
+      puts 'create'.green+'  lib/custom_matcher'
+      puts 'create'.green+'  lib/apicasebase.rb'
+      puts 'create'.green+'  lib/configration.rb'
+      puts 'create'.green+'  lib/database.rb'
+      puts 'create'.green+'  lib/fileoperation.rb'
+      puts 'create'.green+'  lib/httprequest.rb'
+      puts 'create'.green+'  lib/loadjar.rb'
+      puts 'create'.green+'  lib/matchers.rb'
+      puts 'create'.green+'  lib/utility.rb'
+
+      #创建log
+      `mkdir "#{$desdir}"/log`
+      `cp -R "#{$sourcedir}"/project/sample/keep "#{$desdir}"/log/.`
+      puts 'create'.green+'  log'
+
+      #创建serialobj
+      `mkdir "#{$desdir}"/serialobj`
+      `mkdir "#{$desdir}"/serialobj/test`
+      `cp -R "#{$sourcedir}"/project/sample/keep "#{$desdir}"/serialobj/test/.`
+      `mkdir "#{$desdir}"/serialobj/uat`
+      `cp -R "#{$sourcedir}"/project/sample/keep "#{$desdir}"/serialobj/uat/.`
+      puts 'create'.green+'  serialobj'
+      puts 'create'.green+'  serialobj/test'
+      puts 'create'.green+'  serialobj/uat'
+
+      #创建spec
+      `mkdir "#{$desdir}"/spec`
+      `mkdir "#{$desdir}"/spec/reports`
+      `cp -R "#{$sourcedir}"/project/sample/keep "#{$desdir}"/spec/reports/.`
+      puts 'create'.green+'  spec'
+      puts 'create'.green+'  spec/reports'
+
+      #创建temp
+      `mkdir "#{$desdir}"/temp`
+      `mkdir "#{$desdir}"/temp/html`
+      `cp -R "#{$sourcedir}"/project/sample/keep "#{$desdir}"/temp/html/.`
+      puts 'create'.green+'  spec'
+      puts 'create'.green+'  temp'
+      puts 'create'.green+'  temp/html'
+
+      #创建validate
+      `mkdir "#{$desdir}"/validate`
+      puts 'create'.green+'  validate'
+
+      puts 'Project was created successfully......'.green
+
+  when 'gen','generate','g'
+    cmd = `pwd`
+    $prodir = "#{cmd}".chomp
+
+    if File.exist?($prodir+'/Rakefile')
+       if ARGV[1].eql?nil
+          puts "please input api name，default will be NewApi."
+          name = STDIN.gets
+             if name.size==1
+                name = "NewApi"
+             else
+                name = name.chomp
+             end
+       else
+           name = ARGV[1]
+       end
+
+       `cp -R "#{$sourcedir}"/project/bin/template/Demo.xls "#{$prodir}"/data/test/"#{name}.xls"`
+       `cp -R "#{$sourcedir}"/project/bin/template/Demo.xls "#{$prodir}"/data/uat/"#{name}.xls"`
+       code_gen($sourcedir,$prodir,name)
+
+       puts "success to generate api data and file.".green
+
+    else
+        puts "please ensure the dir is project base dir.".yellow
+    end
+
+  else
+    puts 'please input the correct command!'.yellow
+end
+
+

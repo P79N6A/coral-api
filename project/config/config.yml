@@ -1,0 +1,20 @@
+---
+BaseConfig:
+  TESTENV: TEST
+  APITYPE: HTTP
+  CLEAN_DBS:
+  - DPTakeaway
+  HTTP_RETRY_TIMES: 3
+  HTTP_ERROR_CODE:
+  - 404
+  - 500
+  - 502
+TEST:
+  Domain_takeaway: takeaway.51ping.com
+  Domain_mpay: mpay.payment.paydev.sankuai.com
+  Domain_BClient: 10.4.240.143
+  Domain_activity: activity.51ping.com
+  DBNAME: DB_TEST
+PRO:
+  Domain_takeaway: takeaway.51ping.com
+  DBNAME: DB_UAT

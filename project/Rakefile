@@ -1,0 +1,27 @@
+$LOAD_PATH << File.join(File.dirname(__FILE__), '/lib')
+require 'rake'
+require 'ci/reporter/rake/rspec'
+
+namespace :ci do
+  task :takeaway => ['ci:setup:rspec', 'api']
+
+  task :api do
+    system 'rspec'
+  end
+
+end
+
+namespace :test do
+  task :takeaway do
+    system 'rspec -fh >> spec/reports/TestReport'+ Time.now.strftime("%Y%m%d%H%M%S")+'.html'
+  end
+end
+
+namespace :env do
+  task :switch,[:name] do |t, args|
+    require 'configration'
+    switch = Configration.new
+    switch.envdata['TESTENV'] = args[:name]
+    switch.modify_env(deep_clone(switch.envdata))
+  end
+end

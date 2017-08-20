@@ -1,0 +1,17 @@
+DB_TEST:
+  adapter: mysql
+  host: 10.1.77.20:3306
+  username: aspnet_dianping
+  password: dp!@Z0vyBUtAK
+  database: testdb
+  clean_tables:
+  clean_tables_except:
+
+DB_UAT:
+  adapter: mysql
+  host: 10.198.194.96:3306
+  username:
+  password:
+  database:
+  clean_tables: all
+  clean_tables_except:
