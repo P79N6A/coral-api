@@ -33,9 +33,9 @@ module Matchers
         value = escaped[1] if escaped.size == 2
 
         case act
-        when 'equal'
+        when 'equal', 'eql', 'eq'
           tmp = val_on_path.eql?(value)
-        when 'not_equal'
+        when 'not_equal', 'not_eql', 'not_eq'
           tmp = !val_on_path.eql?(value)
         when 'include'
           tmp = val_on_path.include?(value)
@@ -44,8 +44,12 @@ module Matchers
         when 'not_null', 'not_nil', 'not_empty'
           tmp = !val_on_path.empty?
         when 'less_than'
-          tmp = val_on_path.to_f <= value.to_f
+          tmp = val_on_path.to_f < value.to_f
         when 'more_than'
+          tmp = val_on_path.to_f > value.to_f
+        when 'less&eql_than'
+          tmp = val_on_path.to_f <= value.to_f
+        when 'more&eql_than'
           tmp = val_on_path.to_f >= value.to_f
         when 'is_num'
           tmp = val_on_path.is_a?(Numeric)
