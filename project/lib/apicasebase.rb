@@ -67,10 +67,10 @@ class ApiCaseBase
         params = args[0]
         @subnode = gen_sheetdata(self.name,idxorname)
         if params.eql?nil
-          update_node datahash, "#{nodename}"+"=@subnode"
+          update_node datahash, "#{nodename}=@subnode"
         else
           update @subnode,params
-          update_node datahash, "#{nodename}"+"=@subnode"
+          update_node datahash, "#{nodename}=@subnode"
         end
       rescue StandardError => e
         puts self.name+"::"+__method__.to_s()+": "+e.to_s
@@ -92,10 +92,10 @@ class ApiCaseBase
           @subnode[num] = deep_clone(datahash[1][nodename])
         end
         if params.eql?nil
-          update_node_force datahash, "#{nodename}"+"=@subnode"
+          update_node_force datahash, "#{nodename}=@subnode"
         else
           update_force @subnode,params
-          update_node_force datahash, "#{nodename}"+"=@subnode"
+          update_node_force datahash, "#{nodename}=@subnode"
         end
 
       rescue StandardError => e
@@ -115,10 +115,10 @@ class ApiCaseBase
         params = args[0]
         @subnodelist = gen_nodelist(self.name,idxorname)
         if params.eql?nil
-          add_nodelist datahash,"#{nodename}"+"=@subnodelist"
+          add_nodelist datahash,"#{nodename}=@subnodelist"
         else
           update_nodelist @subnodelist,params
-          add_nodelist datahash,"#{nodename}"+"=@subnodelist"
+          add_nodelist datahash,"#{nodename}=@subnodelist"
         end
       rescue StandardError => e
         puts self.name+"::"+__method__.to_s()+": "+e.to_s
@@ -140,10 +140,10 @@ class ApiCaseBase
           @subnodelist[num] = deep_clone(datahash[1][nodename])
         end
         if params.eql?nil
-          add_nodelist_force datahash,"#{nodename}"+"=@subnodelist"
+          add_nodelist_force datahash,"#{nodename}=@subnodelist"
         else
           update_nodelist_force @subnodelist,params
-          add_nodelist_force datahash,"#{nodename}"+"=@subnodelist"
+          add_nodelist_force datahash,"#{nodename}=@subnodelist"
         end
       rescue StandardError => e
         puts self.name+"::"+__method__.to_s()+": "+e.to_s
@@ -164,7 +164,7 @@ class ApiCaseBase
       }
     end
 
-    def generate_data (classname,needfile=false,sheethash={})
+    def generate_data (classname,sheethash={})
       requestSheet = sheethash
       requestData = {}
       requestData['Main'] = classname.request
@@ -184,8 +184,8 @@ class ApiCaseBase
         end
       end
       to_yaml_file(requestData, classname.name)
-      code_gen('validate','_validate.rb',classname.name) if needfile
-      code_gen('spec','_spec.rb',classname.name) if needfile
+      code_gen('validate','_validate.rb',classname.name) unless File.exists?(getrootpath+'/validate/'+classname.name+'_validate.rb')
+      code_gen('spec','_spec.rb',classname.name) unless File.exists?(getrootpath+'/spec/'+classname.name+'_spec.rb')
       # requestData
     end
   end
@@ -194,16 +194,25 @@ end
 module ApiTestBase
 
   def self.included(kclass)
+
+    classname = kclass.name[0..-5]
+    @@ds = from_yaml_file(classname)
+
     class << kclass
+      @@ds.each_key do |key|
+        attr_accessor :"#{key}" unless ["Main","Expection","Flow","FlowExpection"].include?(key)
+      end
       attr_accessor :request,:expect,:flow_request,:flow_expect
     end
-    classname = kclass.name[0..-5]
-    ds = from_yaml_file(classname)
 
-    kclass.request = ds["Main"]
-    kclass.expect = ds["Expection"]
-    kclass.flow_request = ds["Flow"]
-    kclass.flow_expect = ds["FlowExpection"]
+    kclass.request = @@ds["Main"]
+    kclass.expect = @@ds["Expection"]
+    kclass.flow_request = @@ds["Flow"]
+    kclass.flow_expect = @@ds["FlowExpection"]
+
+    @@ds.each do |key,value|
+      eval("kclass.#{key}=#{value}") unless ["Main","Expection","Flow","FlowExpection"].include?(key)
+    end
 
     kclass.extend ApiDefine
     kclass.extend DbValidate
@@ -237,7 +246,7 @@ module ApiTestBase
         response.body.force_encoding('utf-8').encode
       rescue StandardError => e
         puts e.to_s
-      rescue HTTPExceptions => e
+      rescue HTTPError => e
           puts "Http Exception Occourred:Retrying......"
           Clog.to_log(self.class.name+"::"+__method__.to_s()+": "+e.to_s)
           sleep 30
