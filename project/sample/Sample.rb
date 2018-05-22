@@ -9,7 +9,7 @@ class Sample < ApiCaseBase
 
   sheetData={'ForApiOther'=>5}
 
-  generate_data self,true,sheetData do
+  generate_data self,sheetData do
   update_force @data,:requestId=>'gen_randcode(10)',:createTime=>'get_datetime'
   add_node_force @data,"orderInfo",:orderId=>'gen_randcode(10)'
   add_list_force @data,"payInfo",:transactionId=>'gen_randcode(15)',:payTime=>'get_datetime'
