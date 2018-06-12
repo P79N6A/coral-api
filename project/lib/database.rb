@@ -15,7 +15,7 @@ module DB
   module Mysql
     attr_accessor :sqlstring
     #初始化mysql类，载入配置文件和节点
-    def db_init(nodename,configpath=getrootpath+'config/database.yml')           #参数位置不要调换，否则需要调整代码
+    def db_init(nodename,configpath=getrootpath+'config/database.yml')
       begin
         @sqlstring = ''
         dbconfig = YAML.load_file(configpath)
@@ -106,7 +106,7 @@ module DB
 
   module Oracle
     attr_accessor :sqlstring
-    def db_init(nodename,configpath=getrootpath+"config/database.yml")           #参数位置不要调换，否则需要调整代码
+    def db_init(nodename,configpath=getrootpath+"config/database.yml")
       begin
         @sqlstring = ''
         dbconfig = YAML.load_file(configpath)
