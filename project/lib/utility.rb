@@ -156,6 +156,15 @@ require 'jsonpath'
     end
   end
 
+  def from_yaml_file_with_erb(fname)
+    begin
+      env = YAML.load_file(getrootpath+'/config/config.yml')['BaseConfig']['TESTENV']
+      YAML.load(ERB.new(File.read(getrootpath+'serialobj/'+env.downcase+'/'+fname+'.yml')).result)
+    rescue StandardError => e
+      puts e.to_s
+    end
+  end
+
   ######################################
   #         ftp 发送
   ######################################
