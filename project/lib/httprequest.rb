@@ -38,7 +38,7 @@ include FileOperation
       puts "params:"+params.to_s if isdebug
       case method
         when 'get'
-          return http.get(path+'?'+to_query_string(params),header)
+          return http.get(path+'?'+URI.encode_www_form(params),header)
         when 'post'
           return http.post(path,URI.encode_www_form(params),header)
         else

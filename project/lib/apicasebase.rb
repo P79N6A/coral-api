@@ -6,7 +6,6 @@ require 'httprequest'
 require 'utility'
 require 'database'
 require 'json'
-require 'jsonpath'
 require 'json_spec'
 require 'erb'
 require 'matchers'
@@ -19,7 +18,7 @@ class ApiCaseBase
   attr_accessor :testdata,:envdata
   #初始化请求sheet数据
   def self.inherited(subclass)
-    @@env = Configration.new.envdata["TESTENV"].downcase     #环境配置参数
+    @@env = $envdata["TESTENV"].downcase     #环境配置参数
     class << subclass
       attr_accessor :request,:expect,:flow_request,:flow_expect
     end
@@ -224,11 +223,11 @@ module ApiTestBase
     end
 
     def set_domain(domain,cookies=nil)
-      @domain = Configration.new.testdata["#{domain}"]
+      @domain = $testdata["#{domain}"]
     end
 
     def send_request(params=nil)
-      conf = Configration.new.envdata
+      conf = $envdata
       if ((conf["HTTP_ERROR_CODE"].class!=Array)||(conf["HTTP_RETRY_TIMES"].eql?(nil)))
           raise "Http Expection Config Error......"
       end
@@ -250,7 +249,7 @@ module ApiTestBase
           puts "Http Exception Occourred:Retrying......"
           Clog.to_log(self.class.name+"::"+__method__.to_s()+": "+e.to_s)
           sleep 30
-          http_request(@domain,@port,@path,params,@header,@method,false).response.body.force_encoding('utf-8')
+          http_request(@domain,@port,@path,params,@header,@method,false).response.body.force_encoding('utf-8').encode
       end
     end
 
@@ -280,7 +279,7 @@ module ApiTestBase
     attr_accessor :l
     def initdb
       begin
-        @db = db_init(Configration.new.testdata["DBNAME"])  #数据库连接对象
+        @db = db_init($testdata["DBNAME"])  #数据库连接对象
         @l = Flog.new
       rescue StandardError => e
         puts e.to_s

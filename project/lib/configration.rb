@@ -12,8 +12,8 @@ include FileOperation
           raise 'config file not found!'
         else
           @content = YAML.load_file(confpath)
-          @envdata = @content["BaseConfig"]
-          @testdata = @content[@content["BaseConfig"]["TESTENV"]]
+          $envdata = @envdata = @content["BaseConfig"]
+          $testdata = @testdata = @content[@content["BaseConfig"]["TESTENV"]]
         end
       rescue StandardError=>e
         puts self.class.name+"::"+__method__.to_s()+": "+e.to_s
@@ -34,3 +34,4 @@ include FileOperation
     end
   end
 
+  $config = Configration.new
