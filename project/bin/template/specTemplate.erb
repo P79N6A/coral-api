@@ -10,6 +10,8 @@ RSpec.shared_examples "<%= classname%> Example" do |key,expData|
       JsonSpec.excluded_keys = expData['noise'].to_array if expData.key?('noise')
       expect(response).to eval("#{expData['matcher']} '#{expData['expection']}'")
 
+      #JSON(expData['expection']).each{|key,value|expect(response.get_jnode(key)).to eval(value)}
+
     end
 end
 

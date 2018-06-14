@@ -349,4 +349,9 @@ require 'jsonpath'
     def to_array
       self.split(",")
     end
+
+    def get_jnode(pattern)
+      JsonPath.on(self,pattern)
+    end
+
   end
