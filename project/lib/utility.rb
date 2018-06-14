@@ -347,6 +347,6 @@ require 'jsonpath'
     end
 
     def to_array
-      self[1..-2].split(",")
+      self.split(",")
     end
   end
