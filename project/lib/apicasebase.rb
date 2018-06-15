@@ -229,7 +229,7 @@ module ApiTestBase
     def send_request(params=nil)
       conf = $envdata
       if ((conf["HTTP_ERROR_CODE"].class!=Array)||(conf["HTTP_RETRY_TIMES"].eql?(nil)))
-          raise "Http Expection Config Error......"
+        raise "Http Expection Config Error......"
       end
       begin
         response = http_request(@domain,@port,@path,params,@header,@method,false).response
@@ -246,10 +246,10 @@ module ApiTestBase
       rescue StandardError => e
         puts e.to_s
       rescue HTTPError => e
-          puts "Http Exception Occourred:Retrying......"
-          Clog.to_log(self.class.name+"::"+__method__.to_s()+": "+e.to_s)
-          sleep 30
-          http_request(@domain,@port,@path,params,@header,@method,false).response.body.force_encoding('utf-8').encode
+        puts "Http Exception Occourred:Retrying......"
+        Clog.to_log(self.class.name+"::"+__method__.to_s()+": "+e.to_s)
+        sleep 30
+        http_request(@domain,@port,@path,params,@header,@method,false).response.body.force_encoding('utf-8').encode
       end
     end
 
@@ -261,18 +261,24 @@ module ApiTestBase
       self.send_request(self.flow_request[count])
     end
 
-    def method_missing(name,*args)
+    def method_missing(name,*args,&block)
       begin
         if name.to_s =~/set_[\w]+/
           var = ((/_.+\z/.match(name.to_s)).to_s)[1..-1]
           self.instance_variable_set "@#{var}",args.first
           eval("attr_accessor :#{var}")
+        else
+          super
         end
       rescue StandardError => e
         puts e.to_s
         Clog.to_log(self.class.name+"::"+__method__.to_s()+": "+e.to_s)
       end
     end
+  end
+
+  def respond_to?(method_name, include_private = false)
+    method_name.to_s.start_with?('set_') || super
   end
 
   module DbValidate
