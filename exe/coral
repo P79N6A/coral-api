@@ -2,10 +2,10 @@
 require 'coral-api/tool'
 require 'coral-api/colorize'
 
-cmd = `gem env`
+cmd = `jgem env`
 rootdir = "#{cmd}"
 
-cmd = `gem list coral-api`
+cmd = `jgem list coral-api`
 gemdir = "#{cmd}"
 gemdir = "coral-api-" + (/\d.\d.\d/.match(gemdir)).to_s
 
@@ -143,8 +143,8 @@ case ARGV[0].downcase
            name = ARGV[1]
        end
 
-       `cp -R "#{$sourcedir}"/project/bin/template/Demo.xls "#{$prodir}"/data/test/"#{name}.xls"`
-       `cp -R "#{$sourcedir}"/project/bin/template/Demo.xls "#{$prodir}"/data/uat/"#{name}.xls"`
+       `cp -R "#{$prodir}"/bin/template/Demo.xls "#{$prodir}"/data/test/"#{name}.xls"`
+       `cp -R "#{$prodir}"/bin/template/Demo.xls "#{$prodir}"/data/uat/"#{name}.xls"`
        code_gen($sourcedir,$prodir,name)
 
        puts "success to generate api data and file.".green
