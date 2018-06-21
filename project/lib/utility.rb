@@ -352,7 +352,7 @@ require 'jsonpath'
 
     def get_jnode(pattern)
       if pattern!="$"
-        JsonPath.on(self,pattern)
+        JsonPath.on(self,pattern)[0]
       else
         (JsonPath.on(self,pattern)[0]).to_json
       end
