@@ -191,11 +191,14 @@ class ApiCaseBase
 end
 
 module ApiTestBase
+  
+  #定义通用全局变量
+  $token = $testdata["token"]
 
   def self.included(kclass)
 
     classname = kclass.name[0..-5]
-    @@ds = from_yaml_file(classname)
+    @@ds = from_yaml_file_with_erb(classname)
 
     class << kclass
       @@ds.each_key do |key|
@@ -218,6 +221,20 @@ module ApiTestBase
   end
 
   module ApiDefine
+
+    def fill_header(cookies=nil)
+      header = $testdata['header']
+      unless cookies.eql?nil
+        case cookies
+          when Array
+            header['Cookie'] = cookies.join(';')
+          when String
+            header['Cookie'] = cookies
+        end
+      end
+      header
+    end
+
     def set_cookie(cookies=nil)
       @header = fill_header(cookies)
     end
@@ -229,7 +246,7 @@ module ApiTestBase
     def send_request(params=nil)
       conf = $envdata
       if ((conf["HTTP_ERROR_CODE"].class!=Array)||(conf["HTTP_RETRY_TIMES"].eql?(nil)))
-        raise "Http Expection Config Error......"
+          raise "Http Expection Config Error......"
       end
       begin
         response = http_request(@domain,@port,@path,params,@header,@method,false).response
@@ -246,10 +263,10 @@ module ApiTestBase
       rescue StandardError => e
         puts e.to_s
       rescue HTTPError => e
-        puts "Http Exception Occourred:Retrying......"
-        Clog.to_log(self.class.name+"::"+__method__.to_s()+": "+e.to_s)
-        sleep 30
-        http_request(@domain,@port,@path,params,@header,@method,false).response.body.force_encoding('utf-8').encode
+          puts "Http Exception Occourred:Retrying......"
+          Clog.to_log(self.class.name+"::"+__method__.to_s()+": "+e.to_s)
+          sleep 30
+          http_request(@domain,@port,@path,params,@header,@method,false).response.body.force_encoding('utf-8').encode
       end
     end
 

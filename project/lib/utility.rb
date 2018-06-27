@@ -68,18 +68,18 @@ require 'jsonpath'
   end
 
   #cookies为返回获取的set-cookie内容，形式为数组
-  def fill_header(cookies=nil)
-    header = from_yaml_file('header')
-    unless cookies.eql?nil
-      case cookies
-        when Array
-          header['Cookie'] = cookies.join(';')
-        when String
-          header['Cookie'] = cookies
-      end
-    end
-    header
-  end
+  # def fill_header(cookies=nil)
+  #   header = from_yaml_file('header')
+  #   unless cookies.eql?nil
+  #     case cookies
+  #       when Array
+  #         header['Cookie'] = cookies.join(';')
+  #       when String
+  #         header['Cookie'] = cookies
+  #     end
+  #   end
+  #   header
+  # end
 
   def deep_merge(hash1, hash2)
     result = hash1.dup
