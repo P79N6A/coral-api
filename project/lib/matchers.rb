@@ -1,8 +1,8 @@
-require_relative 'custom_matcher/json_nodes_matcher'
+require_relative 'custom_matcher/array_not_empty'
 
 module Matchers
-  def json_nodes_matcher(path_hash)
-    Matchers::JsonNodesMatcher.new(path_hash)
+  def array_not_empty
+    Matchers::ArrayMatchers::ArrayNotEmtpy.new
   end
 end
 

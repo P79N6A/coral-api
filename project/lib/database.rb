@@ -59,8 +59,8 @@ module DB
         res.execute
         i = 1
         res.fetch_hash do |row|
-        recorder[i]  = row
-        i += 1
+          recorder[i]  = row
+          i += 1
         end
         res.finish
         recorder
@@ -96,7 +96,7 @@ module DB
   end
 
   module ActiveMysql
-    def db_init(nodename,configpath=getrootpath+'\\config\\database.yml')
+    def db_init(nodename,configpath=getrootpath+'config/database.yml')
       @dbconfig = YAML.load_file(configpath)[nodename]
     end
     def db_conn
@@ -106,7 +106,7 @@ module DB
 
   module Oracle
     attr_accessor :sqlstring
-    def db_init(nodename,configpath=getrootpath+"config/database.yml")
+    def db_init(nodename,configpath=getrootpath+'config/database.yml')
       begin
         @sqlstring = ''
         dbconfig = YAML.load_file(configpath)
@@ -184,10 +184,10 @@ module DB
   end
 
   module RedisDB
-    def db_init
-      conf = Configration.new
-      ip = conf.testdata['Redis.ip']
-      port = conf.testdata['Redis.port']
+    def db_init(nodename,configpath=getrootpath+'config/database.yml')
+      dbconfig = YAML.load_file(configpath)
+      @host = dbconfig[nodename]['Redis.ip']
+      @user = dbconfig[nodename]['Redis.port']
       @redis = Redis.new(host: "#{ip}", port: "#{port}")
     end
 
