@@ -7,13 +7,13 @@ RSpec.shared_examples "<%= classname%> Example" do |key,expData|
     it 'CaseNo'+ key.to_s + ': '+expData['memo'] do
 
       response = <%= classname%>Test.response_of(key)
-      JsonSpec.excluded_keys = expData['noise'].to_array if expData.key?('noise')
+      JsonSpec.excluded_keys = expData['noise'].to_array unless expData['noise'].empty?
       JSON(expData['matcher']).each{|key,value|expect(response.get_jnode(key)).to eval(value)}
 
     end
 end
 
-RSpec.describe "<%= classname%>接口测试",:project=>'',:author=>'' do
+RSpec.describe "<%= classname%>接口测试",:project=>'wxapp_api_auto',:author=>'' do
   <%= classname%>Test.request.each{|key,parameter|include_examples "<%= classname%> Example",key,<%= classname%>Test.expect[key]}
 end
 
