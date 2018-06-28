@@ -150,10 +150,11 @@ class ApiCaseBase
       end
     end
 
-    def code_gen(dir,extname,para)
+    def code_gen(dir,sub_dir,extname,para)
       classname = para
       libtemplate = getrootpath+'bin/template/'+dir+'Template.erb'
-      path = getrootpath + dir + '/'
+      path = getrootpath + dir + "/#{sub_dir}/" unless sub_dir.nil?
+      raise "#{path} is not exist!" unless Dir.exist?(path)
       file = path + classname + extname
       f = File.new(file, "w")
       File.open( libtemplate ) { |fh|
@@ -163,7 +164,7 @@ class ApiCaseBase
       }
     end
 
-    def generate_data (classname,sheethash={})
+    def generate_data (classname,sheethash={},path=nil)
       requestSheet = sheethash
       requestData = {}
       requestData['Main'] = classname.request
@@ -184,7 +185,7 @@ class ApiCaseBase
       end
       to_yaml_file(requestData, classname.name)
       code_gen('validate','_validate.rb',classname.name) unless File.exists?(getrootpath+'/validate/'+classname.name+'_validate.rb')
-      code_gen('spec','_spec.rb',classname.name) unless File.exists?(getrootpath+'/spec/'+classname.name+'_spec.rb')
+      code_gen('spec',path,'_spec.rb',classname.name) unless File.exists?(getrootpath+"/spec/#{path}/"+classname.name+'_spec.rb')
       # requestData
     end
   end
@@ -230,6 +231,8 @@ module ApiTestBase
             header['Cookie'] = cookies.join(';')
           when String
             header['Cookie'] = cookies
+          else
+            raise 'params error......'
         end
       end
       header
@@ -259,14 +262,26 @@ module ApiTestBase
             break
           end
         end
-        response.body.force_encoding('utf-8').encode
+
+        if response.code.to_i==200
+          response.body.force_encoding('utf-8').encode
+        else
+          raise "http code not eql 200"
+        end
+
       rescue StandardError => e
         puts e.to_s
       rescue HTTPError => e
           puts "Http Exception Occourred:Retrying......"
           Clog.to_log(self.class.name+"::"+__method__.to_s()+": "+e.to_s)
           sleep 30
-          http_request(@domain,@port,@path,params,@header,@method,false).response.body.force_encoding('utf-8').encode
+          http_request(@domain,@port,@path,params,@header,@method,false).response
+
+          if response.code.to_i==200
+            response.body.force_encoding('utf-8').encode
+          else
+            raise "http code not eql 200"
+          end
       end
     end
 

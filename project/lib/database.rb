@@ -186,8 +186,8 @@ module DB
   module RedisDB
     def db_init(nodename,configpath=getrootpath+'config/database.yml')
       dbconfig = YAML.load_file(configpath)
-      @host = dbconfig[nodename]['Redis.ip']
-      @user = dbconfig[nodename]['Redis.port']
+      ip = dbconfig[nodename]['Redis.ip']
+      port = dbconfig[nodename]['Redis.port']
       @redis = Redis.new(host: "#{ip}", port: "#{port}")
     end
 
