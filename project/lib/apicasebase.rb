@@ -150,10 +150,10 @@ class ApiCaseBase
       end
     end
 
-    def code_gen(dir,sub_dir,extname,para)
+    def code_gen(dir,extname,para,sub_dir=nil)
       classname = para
       libtemplate = getrootpath+'bin/template/'+dir+'Template.erb'
-      path = getrootpath + dir + "/#{sub_dir}/" unless sub_dir.nil?
+      (!sub_dir.nil? && dir=='spec') ? path=getrootpath+dir+"/#{sub_dir}/" : path=getrootpath+dir+"/"
       raise "#{path} is not exist!" unless Dir.exist?(path)
       file = path + classname + extname
       f = File.new(file, "w")
@@ -185,7 +185,7 @@ class ApiCaseBase
       end
       to_yaml_file(requestData, classname.name)
       code_gen('validate','_validate.rb',classname.name) unless File.exists?(getrootpath+'/validate/'+classname.name+'_validate.rb')
-      code_gen('spec',path,'_spec.rb',classname.name) unless File.exists?(getrootpath+"/spec/#{path}/"+classname.name+'_spec.rb')
+      code_gen('spec','_spec.rb',classname.name,path) unless File.exists?(getrootpath+"/spec/#{path}/"+classname.name+'_spec.rb')
       # requestData
     end
   end
@@ -193,9 +193,6 @@ end
 
 module ApiTestBase
   
-  #定义通用全局变量
-  $token = $testdata["token"]
-
   def self.included(kclass)
 
     classname = kclass.name[0..-5]
@@ -339,3 +336,7 @@ module ApiTestBase
     end
   end
 end
+
+
+#定义通用全局变量
+$token = $testdata["token"]
