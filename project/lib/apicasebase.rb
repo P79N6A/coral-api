@@ -1,5 +1,5 @@
 #encoding:utf-8
-$LOAD_PATH << File.join(File.dirname(__FILE__), '../lib')
+# $LOAD_PATH << File.join(File.dirname(__FILE__), '../lib')
 require 'configration'
 require 'fileoperation'
 require 'httprequest'
@@ -19,6 +19,9 @@ class ApiCaseBase
   #初始化请求sheet数据
   def self.inherited(subclass)
     @@env = $envdata["TESTENV"].downcase     #环境配置参数
+    path = $0.split("/")
+    path.each_index{|index|@@sub_dir = path[index+1..-2].join('/') if path[index] == 'ext'}
+
     class << subclass
       attr_accessor :request,:expect,:flow_request,:flow_expect
     end
@@ -32,7 +35,7 @@ class ApiCaseBase
 
     def gen_sheetdata(filename,idxorname=0)
       begin
-        rows_with_header(getrootpath+"data/"+ @@env + "/" + filename + ".xls",idxorname)
+        rows_with_header(getrootpath+"data/"+ @@env + "/#{@@sub_dir}/" + filename + ".xls",idxorname)
       rescue StandardError => e
         puts self.name+"::"+__method__.to_s()+": "+e.to_s
         Clog.to_log(self.name+"::"+__method__.to_s()+": "+e.to_s)
@@ -41,7 +44,7 @@ class ApiCaseBase
 
     def gen_nodelist(filename,idxorname)
       begin
-        transactionList = rows_onlydata(getrootpath+"data/"+ @@env + "/" + filename + ".xls",idxorname)
+        transactionList = rows_onlydata(getrootpath+"data/"+ @@env + "/#{@@sub_dir}" + filename + ".xls",idxorname)
         transactionList.each do |k,v|
           transarray=[]
           v.each_index do |i|
@@ -153,8 +156,9 @@ class ApiCaseBase
     def code_gen(dir,extname,para,sub_dir=nil)
       classname = para
       libtemplate = getrootpath+'bin/template/'+dir+'Template.erb'
-      (!sub_dir.nil? && dir=='spec') ? path=getrootpath+dir+"/#{sub_dir}/" : path=getrootpath+dir+"/"
-      raise "#{path} is not exist!" unless Dir.exist?(path)
+      (!sub_dir.nil? && (dir=='spec'||dir=='validate')) ? path=getrootpath+dir+"/#{sub_dir}/" : path=getrootpath+dir+"/"
+      # raise "#{path} is not exist!" unless Dir.exist?(path)
+      Dir.mkdir(path) unless Dir.exist?(path)
       file = path + classname + extname
       f = File.new(file, "w")
       File.open( libtemplate ) { |fh|
@@ -164,7 +168,7 @@ class ApiCaseBase
       }
     end
 
-    def generate_data (classname,sheethash={},path=nil)
+    def generate_data (classname,sheethash={})
       requestSheet = sheethash
       requestData = {}
       requestData['Main'] = classname.request
@@ -183,9 +187,9 @@ class ApiCaseBase
           requestData[k] = @data
         end
       end
-      to_yaml_file(requestData, classname.name)
-      code_gen('validate','_validate.rb',classname.name) unless File.exists?(getrootpath+'/validate/'+classname.name+'_validate.rb')
-      code_gen('spec','_spec.rb',classname.name,path) unless File.exists?(getrootpath+"/spec/#{path}/"+classname.name+'_spec.rb')
+      to_yaml_file(requestData, "#{@@sub_dir}/"+classname.name)
+      code_gen('validate','_validate.rb',classname.name,@@sub_dir) unless File.exists?(getrootpath+"/validate/#{@@sub_dir}/"+classname.name+'_validate.rb')
+      code_gen('spec','_spec.rb',classname.name,@@sub_dir) unless File.exists?(getrootpath+"/spec/#{@@sub_dir}/"+classname.name+'_spec.rb')
       # requestData
     end
   end

@@ -130,8 +130,11 @@ require 'jsonpath'
 
   def to_yaml_file(obj,fname)
     begin
-      env = YAML.load_file(getrootpath+'/config/config.yml')['BaseConfig']['TESTENV']
-      File.open(getrootpath+'serialobj/'+env.downcase+'/'+fname+'.yml', 'w+') do |f|
+      $envdata["TESTENV"].nil? ? env = YAML.load_file(getrootpath+'/config/config.yml')['BaseConfig']['TESTENV'].downcase : env = $envdata["TESTENV"].downcase
+      path = fname.split('/')
+      path.length > 1 ? sub_dir = getrootpath+'serialobj/'+env+'/'+path[0..-2].join('/')+'/' : sub_dir = getrootpath+'serialobj/'+env+'/'
+      Dir.mkdir(sub_dir) unless Dir.exist?(sub_dir)
+      File.open(sub_dir+path[-1]+'.yml', 'w+') do |f|
         YAML.dump(obj, f)
       end
     rescue StandardError => e
@@ -141,8 +144,10 @@ require 'jsonpath'
 
   def from_yaml_file(fname)
     begin
-      env = YAML.load_file(getrootpath+'/config/config.yml')['BaseConfig']['TESTENV']
-      YAML.load_file(getrootpath+'serialobj/'+env.downcase+'/'+fname+'.yml')
+      env = YAML.load_file(getrootpath+'/config/config.yml')['BaseConfig']['TESTENV'].downcase
+      path = (caller[1].split(':')[0]).split("/")
+      path.each_index{|index|$sub_dir = path[index+1..-2].join('/') if path[index] == 'validate'}
+      YAML.load_file(getrootpath+'serialobj/'+env+"/#{$sub_dir}/"+fname+'.yml')
     rescue StandardError => e
       puts e.to_s
     end
@@ -158,8 +163,10 @@ require 'jsonpath'
 
   def from_yaml_file_with_erb(fname)
     begin
-      env = YAML.load_file(getrootpath+'/config/config.yml')['BaseConfig']['TESTENV']
-      YAML.load(ERB.new(File.read(getrootpath+'serialobj/'+env.downcase+'/'+fname+'.yml')).result)
+      env = YAML.load_file(getrootpath+'/config/config.yml')['BaseConfig']['TESTENV'].downcase
+      path = (caller[1].split(':')[0]).split("/")
+      path.each_index{|index|$sub_dir = path[index+1..-2].join('/') if path[index] == 'validate'}
+      YAML.load(ERB.new(File.read(getrootpath+'serialobj/'+env+"/#{$sub_dir}/"+fname+'.yml')).result)
     rescue StandardError => e
       puts e.to_s
     end
